@@ -23,7 +23,31 @@ all_data <- bind_rows(data_list)
 
 # 히트맵용 데이터 변환
 heatmap_data <- all_data %>%
-  mutate(Year = as.factor(Year))  # 연도는 factor로 변환
+  mutate(Year = as.factor(Year)) %>% # 연도는 factor로 변환
+  filter(Year != 2000)
+  
+
+# cagr_strict <- all_data %>%
+#   filter(Year %in% c(2000, 2024)) %>%
+#   select(Station, Year, Total) %>%
+#   tidyr::pivot_wider(names_from = Year, values_from = Total, names_prefix = "Y") %>%
+#   mutate(
+#     Periods = 2024 - 2000,
+#     Start_Value = Y2000,
+#     End_Value   = Y2024,
+#     CAGR = ifelse(
+#       is.na(Start_Value) | Start_Value == 0 | is.na(End_Value),
+#       NA_real_,
+#       (End_Value / Start_Value)^(1/Periods) - 1
+#     )
+#   ) %>%
+#   select(Station, Start_Value, End_Value, Periods, CAGR)
+
+heatmap_data_period_A <- heatmap_data %>%
+  filter(Year %in% c(2013:2024)) %>%
+  group_by(Station) %>% summarize(avgTotal = mean(Total))
+
+
 
 # 히트맵 그리기
 ggplot(heatmap_data, aes(x = Year, y = Station, fill = Total)) +
